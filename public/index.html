@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="kk">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ALT Market</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+
+    <div class="logo">
+        ALT<span>MARKET</span>
+    </div>
+
+    <nav>
+        <a href="#home">Басты бет</a>
+        <a href="#products">Тауарлар</a>
+        <a href="#sell">Сату</a>
+    </nav>
+
+</header>
+
+
+<section class="hero" id="home">
+
+    <div class="hero-content">
+
+        <p class="hero-small">
+            ALT UNIVERSITY
+        </p>
+
+        <h1>
+            Студенттерге арналған
+            <span>онлайн маркет</span>
+        </h1>
+
+        <p class="hero-text">
+            ALT студенттері арасында
+            тауар сатып ал, сат және
+            өзіңе керекті затты тап.
+        </p>
+
+        <a
+            href="#products"
+            class="main-button"
+        >
+            Тауарларды көру
+        </a>
+
+    </div>
+
+</section>
+
+
+<section class="categories">
+
+    <div class="container">
+
+        <h2>Категориялар</h2>
+
+        <div class="category-buttons">
+
+            <button
+                onclick="filterCategory('Барлығы')"
+            >
+                🛍️ Барлығы
+            </button>
+
+            <button
+                onclick="filterCategory('Техника')"
+            >
+                💻 Техника
+            </button>
+
+            <button
+                onclick="filterCategory('Кітап')"
+            >
+                📚 Кітап
+            </button>
+
+            <button
+                onclick="filterCategory('Киім')"
+            >
+                👕 Киім
+            </button>
+
+            <button
+                onclick="filterCategory('Оқу құралдары')"
+            >
+                ✏️ Оқу құралдары
+            </button>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<section
+    class="products"
+    id="products"
+>
+
+    <div class="container">
+
+        <div class="products-header">
+
+            <div>
+
+                <p class="section-small">
+                    ALT MARKET
+                </p>
+
+                <h2>Соңғы тауарлар</h2>
+
+            </div>
+
+            <input
+                id="search"
+                type="text"
+                placeholder="🔍 Тауар іздеу..."
+                oninput="loadProducts()"
+            >
+
+        </div>
+
+
+        <div
+            id="productsList"
+            class="products-grid"
+        ></div>
+
+    </div>
+
+</section>
+
+
+<section
+    class="sell"
+    id="sell"
+>
+
+    <div class="sell-container">
+
+        <div class="sell-info">
+
+            <p class="section-small">
+                ALT MARKET
+            </p>
+
+            <h2>
+                Өз тауарыңды
+                сат
+            </h2>
+
+            <p>
+                Қолданбай жүрген затыңды
+                басқа ALT студентіне сат.
+            </p>
+
+            <div class="benefit">
+                ✓ Тегін жариялау
+            </div>
+
+            <div class="benefit">
+                ✓ Студенттер арасында
+            </div>
+
+            <div class="benefit">
+                ✓ Тікелей байланыс
+            </div>
+
+        </div>
+
+
+        <form id="productForm">
+
+            <h2>Тауар қосу</h2>
+
+            <label>
+                Тауар атауы
+            </label>
+
+            <input
+                id="name"
+                type="text"
+                placeholder="Мысалы: AirPods"
+                required
+            >
+
+
+            <label>
+                Бағасы
+            </label>
+
+            <input
+                id="price"
+                type="number"
+                placeholder="35000"
+                required
+            >
+
+
+            <label>
+                Категория
+            </label>
+
+            <select
+                id="category"
+                required
+            >
+
+                <option value="">
+                    Категория таңдаңыз
+                </option>
+
+                <option value="Техника">
+                    Техника
+                </option>
+
+                <option value="Кітап">
+                    Кітап
+                </option>
+
+                <option value="Киім">
+                    Киім
+                </option>
+
+                <option value="Оқу құралдары">
+                    Оқу құралдары
+                </option>
+
+                <option value="Басқа">
+                    Басқа
+                </option>
+
+            </select>
+
+
+            <label>
+                Сатушы
+            </label>
+
+            <input
+                id="seller"
+                type="text"
+                placeholder="Аты-жөніңіз"
+                required
+            >
+
+
+            <label>
+                Телефон
+            </label>
+
+            <input
+                id="phone"
+                type="text"
+                placeholder="+7 700 000 00 00"
+            >
+
+
+            <label>
+                Сипаттама
+            </label>
+
+            <textarea
+                id="description"
+                placeholder="Тауар туралы ақпарат..."
+            ></textarea>
+
+
+            <button type="submit">
+                Тауарды жариялау
+            </button>
+
+        </form>
+
+    </div>
+
+</section>
+
+
+<footer>
+
+    <div>
+
+        <h3>ALT MARKET</h3>
+
+        <p>
+            ALT University студенттеріне
+            арналған онлайн маркет
+        </p>
+
+    </div>
+
+    <p>
+        © 2026 ALT Market
+    </p>
+
+</footer>
+
+
+<div
+    id="modal"
+    class="modal"
+>
+
+    <div class="modal-box">
+
+        <button
+            class="close"
+            onclick="closeModal()"
+        >
+            ×
+        </button>
+
+        <div id="modalContent"></div>
+
+    </div>
+
+</div>
+
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
