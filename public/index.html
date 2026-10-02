@@ -1,15 +1,10 @@
 <!DOCTYPE html>
 <html lang="kk">
-
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>ALT Market</title>
+    <title>ALT MARKET</title>
 
     <link rel="stylesheet" href="style.css">
 </head>
@@ -18,86 +13,130 @@
 
 <header class="header">
 
-    <div class="logo">
-        ALT<span>MARKET</span>
-    </div>
+    <a href="#home" class="logo">
+        ALT MARKET
+    </a>
 
-    <nav>
-        <a href="#home">Басты бет</a>
+    <nav class="nav">
         <a href="#products">Тауарлар</a>
+        <a href="#categories">Категориялар</a>
         <a href="#sell">Сату</a>
     </nav>
 
+    <button
+        class="header-sell"
+        onclick="scrollToSell()"
+    >
+        Тауар сату
+    </button>
+
 </header>
 
+
+<main>
 
 <section class="hero" id="home">
 
     <div class="hero-content">
 
-        <p class="hero-small">
+        <p class="hero-label">
             ALT UNIVERSITY
         </p>
 
         <h1>
             Студенттерге арналған
-            <span>онлайн маркет</span>
+            <br>
+            маркет
         </h1>
 
-        <p class="hero-text">
+        <p class="hero-description">
             ALT студенттері арасында
             тауар сатып ал, сат және
             өзіңе керекті затты тап.
         </p>
 
-        <a
-            href="#products"
-            class="main-button"
+        <button
+            class="hero-button"
+            onclick="scrollToProducts()"
         >
             Тауарларды көру
-        </a>
+        </button>
 
     </div>
 
 </section>
 
 
-<section class="categories">
+<section
+    class="categories"
+    id="categories"
+>
 
-    <div class="container">
+    <div class="section-container">
 
-        <h2>Категориялар</h2>
+        <div class="section-top">
 
-        <div class="category-buttons">
+            <div>
+                <p class="small-title">
+                    SHOP
+                </p>
+
+                <h2>
+                    Категория бойынша
+                </h2>
+            </div>
+
+        </div>
+
+
+        <div class="category-list">
 
             <button
+                class="category-button active"
+                data-category="Барлығы"
                 onclick="filterCategory('Барлығы')"
             >
-                🛍️ Барлығы
+                Барлығы
             </button>
 
             <button
+                class="category-button"
+                data-category="Техника"
                 onclick="filterCategory('Техника')"
             >
-                💻 Техника
+                Техника
             </button>
 
             <button
+                class="category-button"
+                data-category="Кітап"
                 onclick="filterCategory('Кітап')"
             >
-                📚 Кітап
+                Кітап
             </button>
 
             <button
+                class="category-button"
+                data-category="Киім"
                 onclick="filterCategory('Киім')"
             >
-                👕 Киім
+                Киім
             </button>
 
             <button
+                class="category-button"
+                data-category="Оқу құралдары"
                 onclick="filterCategory('Оқу құралдары')"
             >
-                ✏️ Оқу құралдары
+                Оқу құралдары
+            </button>
+
+            <button
+                class="category-button"
+                data-category="Басқа"
+                onclick="filterCategory('Басқа')"
+            >
+                Басқа
             </button>
 
         </div>
@@ -112,26 +151,34 @@
     id="products"
 >
 
-    <div class="container">
+    <div class="section-container">
 
-        <div class="products-header">
+        <div class="products-heading">
 
             <div>
 
-                <p class="section-small">
+                <p class="small-title">
                     ALT MARKET
                 </p>
 
-                <h2>Соңғы тауарлар</h2>
+                <h2>
+                    Тауарлар
+                </h2>
 
             </div>
 
-            <input
-                id="search"
-                type="text"
-                placeholder="🔍 Тауар іздеу..."
-                oninput="loadProducts()"
-            >
+
+            <div class="search-box">
+
+                <span>⌕</span>
+
+                <input
+                    id="search"
+                    type="text"
+                    placeholder="Тауар іздеу"
+                >
+
+            </div>
 
         </div>
 
@@ -153,32 +200,39 @@
 
     <div class="sell-container">
 
-        <div class="sell-info">
+        <div class="sell-text">
 
-            <p class="section-small">
-                ALT MARKET
+            <p class="small-title">
+                SELL
             </p>
 
             <h2>
-                Өз тауарыңды
-                сат
+                Қолданбай жүрген
+                затыңды сат.
             </h2>
 
             <p>
-                Қолданбай жүрген затыңды
-                басқа ALT студентіне сат.
+                Тауарыңды ALT студенттеріне
+                оңай жарияла.
             </p>
 
-            <div class="benefit">
-                ✓ Тегін жариялау
-            </div>
+            <div class="sell-points">
 
-            <div class="benefit">
-                ✓ Студенттер арасында
-            </div>
+                <div>
+                    <span>01</span>
+                    Тауарды жарияла
+                </div>
 
-            <div class="benefit">
-                ✓ Тікелей байланыс
+                <div>
+                    <span>02</span>
+                    Сатып алушыны күт
+                </div>
+
+                <div>
+                    <span>03</span>
+                    Тікелей байланыс
+                </div>
+
             </div>
 
         </div>
@@ -186,7 +240,15 @@
 
         <form id="productForm">
 
-            <h2>Тауар қосу</h2>
+            <h2>
+                Тауар қосу
+            </h2>
+
+            <p class="form-description">
+                Ақпаратты толтырып,
+                тауарды жарияла.
+            </p>
+
 
             <label>
                 Тауар атауы
@@ -195,7 +257,7 @@
             <input
                 id="name"
                 type="text"
-                placeholder="Мысалы: AirPods"
+                placeholder="Мысалы: AirPods Pro"
                 required
             >
 
@@ -208,6 +270,7 @@
                 id="price"
                 type="number"
                 placeholder="35000"
+                min="1"
                 required
             >
 
@@ -277,11 +340,14 @@
 
             <textarea
                 id="description"
-                placeholder="Тауар туралы ақпарат..."
+                placeholder="Тауар туралы қысқаша ақпарат"
             ></textarea>
 
 
-            <button type="submit">
+            <button
+                type="submit"
+                id="submitButton"
+            >
                 Тауарды жариялау
             </button>
 
@@ -291,23 +357,29 @@
 
 </section>
 
+</main>
+
 
 <footer>
 
-    <div>
+    <div class="footer-container">
 
-        <h3>ALT MARKET</h3>
+        <div>
+            <strong>
+                ALT MARKET
+            </strong>
+
+            <p>
+                ALT University студенттеріне
+                арналған маркет
+            </p>
+        </div>
 
         <p>
-            ALT University студенттеріне
-            арналған онлайн маркет
+            © 2026 ALT Market
         </p>
 
     </div>
-
-    <p>
-        © 2026 ALT Market
-    </p>
 
 </footer>
 
@@ -320,7 +392,7 @@
     <div class="modal-box">
 
         <button
-            class="close"
+            class="modal-close"
             onclick="closeModal()"
         >
             ×
@@ -336,5 +408,4 @@
 <script src="script.js"></script>
 
 </body>
-
 </html>

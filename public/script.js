@@ -1,30 +1,97 @@
 let currentCategory = "Барлығы";
 
 
+function escapeHTML(value) {
+    return String(value ?? "").replace(/[&<>"']/g, function(char) {
+        const chars = {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        };
+
+        return chars[char];
+    });
+}
+
+
+function scrollToProducts() {
+    document.getElementById("products").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+
+function scrollToSell() {
+    document.getElementById("sell").scrollIntoView({
+        behavior: "smooth"
+    });
+}
+
+
 async function loadProducts() {
 
+    const container =
+        document.getElementById("productsList");
+
     const search =
-        document.getElementById("search").value;
+        document.getElementById("search").value.trim();
 
-    const response = await fetch(
-        "/api/products?search=" +
-        encodeURIComponent(search)
-    );
 
-    const products = await response.json();
+    container.innerHTML = `
+        <div class="empty">
+            <h3>Тауарлар жүктелуде...</h3>
+        </div>
+    `;
 
-    let result = products;
 
-    if (currentCategory !== "Барлығы") {
+    try {
 
-        result = products.filter(
-            product =>
-                product.category === currentCategory
+        const response = await fetch(
+            "/api/products?search=" +
+            encodeURIComponent(search)
         );
 
-    }
 
-    displayProducts(result);
+        if (!response.ok) {
+            throw new Error("Тауарларды жүктеу қатесі");
+        }
+
+
+        const products =
+            await response.json();
+
+
+        let result = products;
+
+
+        if (currentCategory !== "Барлығы") {
+
+            result = products.filter(
+                product =>
+                    product.category ===
+                    currentCategory
+            );
+        }
+
+
+        displayProducts(result);
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        container.innerHTML = `
+            <div class="empty">
+                <h3>Тауарлар жүктелмеді</h3>
+                <p>
+                    Сервер жұмыс істеп тұрғанын тексеріңіз.
+                </p>
+            </div>
+        `;
+    }
 }
 
 
@@ -32,6 +99,7 @@ function displayProducts(products) {
 
     const container =
         document.getElementById("productsList");
+
 
     if (products.length === 0) {
 
@@ -43,7 +111,8 @@ function displayProducts(products) {
                 </h3>
 
                 <p>
-                    Басқа тауар іздеп көріңіз.
+                    Басқа тауар іздеп көріңіз
+                    немесе жаңа тауар қосыңыз.
                 </p>
 
             </div>
@@ -57,6 +126,7 @@ function displayProducts(products) {
         products.map(product => {
 
             let icon = "📦";
+
 
             if (product.category === "Техника") {
                 icon = "💻";
@@ -78,47 +148,60 @@ function displayProducts(products) {
             }
 
 
-            return `
+            if (product.category === "Басқа") {
+                icon = "📦";
+            }
 
-                <div class="product-card">
+
+            return `
+                <article class="product-card">
 
                     <div class="product-image">
-                        ${icon}
+                        <span>${icon}</span>
                     </div>
+
 
                     <div class="product-body">
 
                         <div class="product-category">
-                            ${product.category}
+                            ${escapeHTML(product.category)}
                         </div>
 
-                        <div class="product-name">
-                            ${product.name}
-                        </div>
 
-                        <div class="product-description">
-                            ${product.description}
-                        </div>
+                        <h3 class="product-name">
+                            ${escapeHTML(product.name)}
+                        </h3>
+
+
+                        <p class="product-description">
+                            ${escapeHTML(
+                                product.description ||
+                                "Сипаттама жоқ"
+                            )}
+                        </p>
+
 
                         <div class="product-bottom">
 
                             <div class="price">
-                                ${product.price.toLocaleString("kk-KZ")} ₸
+                                ${Number(
+                                    product.price
+                                ).toLocaleString("kk-KZ")} ₸
                             </div>
+
 
                             <button
                                 class="view-button"
-                                onclick="showProduct(${product.id})"
+                                onclick="showProduct(${Number(product.id)})"
                             >
-                                Көру
+                                Толығырақ
                             </button>
 
                         </div>
 
                     </div>
 
-                </div>
-
+                </article>
             `;
 
         }).join("");
@@ -129,81 +212,127 @@ function filterCategory(category) {
 
     currentCategory = category;
 
+
+    document
+        .querySelectorAll(".category-button")
+        .forEach(button => {
+
+            button.classList.toggle(
+                "active",
+                button.dataset.category === category
+            );
+
+        });
+
+
     loadProducts();
 }
 
 
 async function showProduct(id) {
 
-    const response =
-        await fetch("/api/products");
+    try {
 
-    const products =
-        await response.json();
-
-    const product =
-        products.find(
-            item => item.id === id
-        );
-
-    if (!product) {
-        return;
-    }
+        const response =
+            await fetch("/api/products");
 
 
-    document.getElementById(
-        "modalContent"
-    ).innerHTML = `
-
-        <div class="product-category">
-            ${product.category}
-        </div>
-
-        <h2>
-            ${product.name}
-        </h2>
-
-        <p>
-            <strong>Бағасы:</strong>
-            ${product.price.toLocaleString("kk-KZ")} ₸
-        </p>
-
-        <p>
-            <strong>Сипаттама:</strong>
-            ${product.description || "Жоқ"}
-        </p>
-
-        <p>
-            <strong>Сатушы:</strong>
-            ${product.seller}
-        </p>
-
-        <p>
-            <strong>Телефон:</strong>
-            ${product.phone || "Көрсетілмеген"}
-        </p>
-
-        ${
-            product.phone
-            ?
-            `
-                <a
-                    class="contact-button"
-                    href="tel:${product.phone}"
-                >
-                    📞 Сатушыға қоңырау шалу
-                </a>
-            `
-            :
-            ""
+        if (!response.ok) {
+            throw new Error();
         }
 
-    `;
+
+        const products =
+            await response.json();
 
 
-    document.getElementById(
-        "modal"
-    ).style.display = "flex";
+        const product =
+            products.find(
+                item =>
+                    Number(item.id) ===
+                    Number(id)
+            );
+
+
+        if (!product) {
+
+            alert("Тауар табылмады");
+
+            return;
+        }
+
+
+        document.getElementById(
+            "modalContent"
+        ).innerHTML = `
+
+            <div class="product-category">
+                ${escapeHTML(product.category)}
+            </div>
+
+            <h2>
+                ${escapeHTML(product.name)}
+            </h2>
+
+            <p>
+                <strong>Бағасы:</strong>
+                ${Number(
+                    product.price
+                ).toLocaleString("kk-KZ")} ₸
+            </p>
+
+            <p>
+                <strong>Сипаттама:</strong>
+                ${escapeHTML(
+                    product.description ||
+                    "Жоқ"
+                )}
+            </p>
+
+            <p>
+                <strong>Сатушы:</strong>
+                ${escapeHTML(product.seller)}
+            </p>
+
+            <p>
+                <strong>Телефон:</strong>
+                ${escapeHTML(
+                    product.phone ||
+                    "Көрсетілмеген"
+                )}
+            </p>
+
+            ${
+                product.phone
+                ?
+                `
+                    <a
+                        class="contact-button"
+                        href="tel:${encodeURIComponent(product.phone)}"
+                    >
+                        Сатушыға қоңырау шалу
+                    </a>
+                `
+                :
+                ""
+            }
+
+        `;
+
+
+        document.getElementById(
+            "modal"
+        ).style.display = "flex";
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Тауар ақпаратын ашу мүмкін болмады"
+        );
+    }
 }
 
 
@@ -216,6 +345,16 @@ function closeModal() {
 
 
 document.getElementById(
+    "search"
+).addEventListener(
+    "input",
+    function() {
+        loadProducts();
+    }
+);
+
+
+document.getElementById(
     "productForm"
 ).addEventListener(
     "submit",
@@ -224,12 +363,24 @@ document.getElementById(
         event.preventDefault();
 
 
+        const button =
+            document.getElementById(
+                "submitButton"
+            );
+
+
+        button.disabled = true;
+
+        button.textContent =
+            "Жариялануда...";
+
+
         const product = {
 
             name:
                 document.getElementById(
                     "name"
-                ).value,
+                ).value.trim(),
 
             price:
                 document.getElementById(
@@ -244,81 +395,116 @@ document.getElementById(
             seller:
                 document.getElementById(
                     "seller"
-                ).value,
+                ).value.trim(),
 
             phone:
                 document.getElementById(
                     "phone"
-                ).value,
+                ).value.trim(),
 
             description:
                 document.getElementById(
                     "description"
-                ).value
-
+                ).value.trim()
         };
 
 
-        const response =
-            await fetch(
-                "/api/products",
-                {
-                    method: "POST",
+        try {
 
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
+            const response =
+                await fetch(
+                    "/api/products",
+                    {
+                        method: "POST",
 
-                    body:
-                        JSON.stringify(product)
-                }
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(product)
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    "Тауар қосылмады"
+                );
+            }
+
+
+            this.reset();
+
+
+            currentCategory =
+                "Барлығы";
+
+
+            document.getElementById(
+                "search"
+            ).value = "";
+
+
+            filterCategory(
+                "Барлығы"
             );
 
 
-        const data =
-            await response.json();
+            await loadProducts();
 
 
-        if (!response.ok) {
+            alert(
+                "Тауар сәтті жарияланды!"
+            );
 
-            alert(data.message);
 
-            return;
+            scrollToProducts();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                error.message ||
+                "Тауарды қосу кезінде қате болды"
+            );
+
+
+        } finally {
+
+            button.disabled = false;
+
+            button.textContent =
+                "Тауарды жариялау";
         }
-
-
-        alert(
-            "Тауар сәтті жарияланды!"
-        );
-
-
-        this.reset();
-
-
-        loadProducts();
-
-
-        document.getElementById(
-            "products"
-        ).scrollIntoView({
-            behavior: "smooth"
-        });
-
     }
 );
 
 
-window.onclick = function(event) {
+window.addEventListener(
+    "click",
+    function(event) {
 
-    const modal =
-        document.getElementById("modal");
+        const modal =
+            document.getElementById("modal");
 
-    if (event.target === modal) {
-        closeModal();
+
+        if (
+            event.target === modal
+        ) {
+            closeModal();
+        }
     }
-
-};
+);
 
 
 loadProducts();

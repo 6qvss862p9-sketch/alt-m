@@ -3,54 +3,110 @@ const fs = require("fs");
 const path = require("path");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
-const productsFile = path.join(__dirname, "data", "products.json");
+const dataFolder = path.join(__dirname, "data");
+const productsFile = path.join(dataFolder, "products.json");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
+if (!fs.existsSync(dataFolder)) {
+    fs.mkdirSync(dataFolder, { recursive: true });
+}
+
+if (!fs.existsSync(productsFile)) {
+    fs.writeFileSync(productsFile, "[]", "utf8");
+}
+
 function getProducts() {
-    const data = fs.readFileSync(productsFile, "utf8");
-    return JSON.parse(data);
+    try {
+        const data = fs.readFileSync(productsFile, "utf8");
+
+        if (!data.trim()) {
+            return [];
+        }
+
+        return JSON.parse(data);
+    } catch (error) {
+        console.error("Оқу қатесі:", error);
+        return [];
+    }
 }
 
 function saveProducts(products) {
-    fs.writeFileSync(
-        productsFile,
-        JSON.stringify(products, null, 2)
-    );
+    try {
+        fs.writeFileSync(
+            productsFile,
+            JSON.stringify(products, null, 2),
+            "utf8"
+        );
+
+        return true;
+    } catch (error) {
+        console.error("Сақтау қатесі:", error);
+        return false;
+    }
 }
 
 app.get("/api/products", (req, res) => {
     const products = getProducts();
 
-    const search = (req.query.search || "")
-        .toLowerCase()
-        .trim();
+    const search = String(
+        req.query.search || ""
+    ).toLowerCase().trim();
 
     const result = products.filter(product =>
-        product.name.toLowerCase().includes(search) ||
-        product.category.toLowerCase().includes(search) ||
-        product.description.toLowerCase().includes(search)
+        String(product.name || "")
+            .toLowerCase()
+            .includes(search) ||
+        String(product.category || "")
+            .toLowerCase()
+            .includes(search) ||
+        String(product.description || "")
+            .toLowerCase()
+            .includes(search)
     );
 
     res.json(result);
 });
 
 app.post("/api/products", (req, res) => {
-    const {
-        name,
-        price,
-        category,
-        seller,
-        phone,
-        description
-    } = req.body;
 
-    if (!name || !price || !category || !seller) {
+    const name = String(
+        req.body.name || ""
+    ).trim();
+
+    const price = Number(
+        req.body.price
+    );
+
+    const category = String(
+        req.body.category || ""
+    ).trim();
+
+    const seller = String(
+        req.body.seller || ""
+    ).trim();
+
+    const phone = String(
+        req.body.phone || ""
+    ).trim();
+
+    const description = String(
+        req.body.description || ""
+    ).trim();
+
+    if (
+        !name ||
+        !category ||
+        !seller ||
+        !Number.isFinite(price) ||
+        price <= 0
+    ) {
         return res.status(400).json({
-            message: "Міндетті ақпараттарды толтырыңыз"
+            message:
+                "Атауы, бағасы, категориясы және сатушысы міндетті"
         });
     }
 
@@ -59,48 +115,37 @@ app.post("/api/products", (req, res) => {
     const newProduct = {
         id: Date.now(),
         name: name,
-        price: Number(price),
+        price: price,
         category: category,
         seller: seller,
-        phone: phone || "",
-        description: description || "",
+        phone: phone,
+        description: description,
         createdAt: new Date().toISOString()
     };
 
-    products.push(newProduct);
+    products.unshift(newProduct);
 
-    saveProducts(products);
+    const saved = saveProducts(products);
+
+    if (!saved) {
+        return res.status(500).json({
+            message:
+                "Тауарды файлға сақтау мүмкін болмады"
+        });
+    }
+
+    console.log(
+        "Тауар қосылды:",
+        newProduct.name
+    );
 
     res.status(201).json(newProduct);
 });
 
-app.delete("/api/products/:id", (req, res) => {
-    const id = Number(req.params.id);
-
-    const products = getProducts();
-
-    const newProducts = products.filter(
-        product => product.id !== id
-    );
-
-    if (products.length === newProducts.length) {
-        return res.status(404).json({
-            message: "Тауар табылмады"
-        });
-    }
-
-    saveProducts(newProducts);
-
-    res.json({
-        message: "Тауар өшірілді"
-    });
-});
-
-app.listen(PORT, () => {
-    console.log("");
-    console.log("=================================");
+app.listen(PORT, "0.0.0.0", () => {
+    console.log("==============================");
     console.log("       ALT MARKET");
-    console.log("=================================");
-    console.log(`Сайт: http://localhost:${PORT}`);
-    console.log("=================================");
+    console.log("==============================");
+    console.log(`http://localhost:${PORT}`);
+    console.log("==============================");
 });
