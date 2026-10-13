@@ -1,37 +1,4 @@
-const express = require("express");
-const fs = require("fs");
-const path = require("path");
 
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-const dataFolder = path.join(__dirname, "data");
-const productsFile = path.join(dataFolder, "products.json");
-
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
-
-if (!fs.existsSync(dataFolder)) {
-    fs.mkdirSync(dataFolder, { recursive: true });
-}
-
-if (!fs.existsSync(productsFile)) {
-    fs.writeFileSync(productsFile, "[]", "utf8");
-}
-
-function getProducts() {
-    try {
-        const data = fs.readFileSync(productsFile, "utf8");
-
-        if (!data.trim()) {
-            return [];
-        }
-
-        return JSON.parse(data);
-    } catch (error) {
-        console.error("Оқу қатесі:", error);
-        return [];
-    }
 }
 
 function saveProducts(products) {
